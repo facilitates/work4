@@ -5,8 +5,7 @@ import (
 	//"net/http"
 	//"path/filepath"
 	//"work4/models"
-	"work4/pkg/utils"
-	"work4/serializer"
+	//"work4/serializer"
 	"work4/service"
 
 	"github.com/gin-gonic/gin"
@@ -36,28 +35,28 @@ func Userlogin(c *gin.Context){
 	}
 }
 
-func UserUploadAvatar(c *gin.Context){
-	file, err := c.FormFile("file")
-	if err != nil {
-		c.JSON(400, ErrorResponse(err))
-	}
-	if utils.ParseAvatarExt(file.Filename) {
-		c.JSON(400, serializer.Response{
-			Status:400,
-			Msg:"文件类型错误",
-		})
-	}
-	filepath := "./upload/avatar"+file.Filename
-	if err := c.SaveUploadedFile(file, filepath); err != nil{
-		c.JSON(400, gin.H{
-			"error":"保存头像失败",
-		})
-	}
-	claim, _ := utils.ParseToken(c.GetHeader("Authorization"))
-	res := service.UploadAvatar(claim.ID)
+// func UserUploadAvatar(c *gin.Context){
+// 	file, err := c.FormFile("file")
+// 	if err != nil {
+// 		c.JSON(400, ErrorResponse(err))
+// 	}
+// 	if utils.ParseAvatarExt(file.Filename) {
+// 		c.JSON(400, serializer.Response{
+// 			Status:400,
+// 			Msg:"文件类型错误",
+// 		})
+// 	}
+// 	filepath := "./upload/avatar"+file.Filename
+// 	if err := c.SaveUploadedFile(file, filepath); err != nil{
+// 		c.JSON(400, gin.H{
+// 			"error":"保存头像失败",
+// 		})
+// 	}
+// 	claim, _ := utils.ParseToken(c.GetHeader("Authorization"))
+// 	res := service.UploadAvatar(claim.ID)
 	
-	c.JSON(200, res)
-}
+// 	c.JSON(200, res)
+// }
 // func UploadAmatar(c *gin.Context){
 //     file, err := c.FormFile("file")
 //     if err != nil {

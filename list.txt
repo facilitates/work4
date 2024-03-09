@@ -1,0 +1,65 @@
+卷 OS 的文件夹 PATH 列表
+卷序列号为 6E75-704C
+C:.
+│  go.mod
+│  go.sum
+│  list.txt
+│  main.go
+│  
+├─api
+│      avatar.go
+│      chat.go
+│      comment.go
+│      main.go
+│      search.go
+│      user.go
+│      video.go
+│      
+├─conf
+│      conf.go
+│      config.ini
+│      
+├─middleware
+│      count.go
+│      jwt.go
+│      
+├─models
+│      chat.go
+│      comment.go
+│      count.go
+│      init.go
+│      migration.go
+│      user.go
+│      video.go
+│      
+├─pkg
+│  └─utils
+│          utils.go
+│          
+├─routers
+│      routers.go
+│      
+├─serializer
+│      avatar.txt
+│      chathistory.go
+│      common.go
+│      rank.go
+│      search.go
+│      user.go
+│      video.go
+│      
+├─service
+│      avatar.go
+│      chat.go
+│      chat.txt
+│      comment.go
+│      rank.go
+│      search.go
+│      user.go
+│      video.go
+│      
+├─template
+└─upload
+    ├─avatar
+    └─video
+

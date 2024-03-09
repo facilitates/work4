@@ -1,38 +1,44 @@
 package routers
 
-import(
-	"github.com/gin-gonic/gin"
+import (
+	"work4/middleware"
+	"work4/api"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
-	"work4/api"
-	"work4/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 func NewRouters() *gin.Engine {
 	r := gin.Default()
 	store := cookie.NewStore([]byte("it's_a_secret"))
 	r.Use(sessions.Sessions("mysession", store))
-	v1 := r.Group("/v1")//进行路由器分组
+	v1 := r.Group("v1/")
 	 {
-		v1.POST("/user/register", api.UserRegister)
-		v1.POST("/user/login", api.Userlogin)
-		authed := v1.Group("/user")//路由分组
-		authed.Use(middleware.JWT())//中间件函数添加到链中。
-		{
-			video := authed.Group("/video")
+		video := v1.Group("videos")
+		video.Use(middleware.COUNT())
+		video.GET("/:videoid", api.ShowVideo)
+		v1.POST("register", api.UserRegister)
+		v1.POST("login", api.Userlogin)
+		v1.GET("rank", api.VideoRank)
+		authed := v1.Group(":username")
+		authed.Use(middleware.JWT())
+		{	
+			search := authed.Group("/")
 			{
-				video.POST("upload", api.VideoUpload)
-				video.POST("comment", api.Comment)
-				video.GET("rank", api.Rank)
+				search.GET("search", api.Search)
+				search.GET("search/history", api.SearchHistory)
 			}
 			chat := authed.Group("/chat")
 			{
-				chat.POST("chating", api.UserChat)
-				chat.GET("search", api.HistorySearch)
+				chat.GET("/:receivername", api.UserChat)
+				chat.POST("/history", api.ChatHistory)
 			}
-			search := authed.Group("/search")
+			authed.POST("/avatar", api.UploadAvatar)
+			video := authed.Group("/video/")
 			{
-				search.GET("searchall", api.Searchall)
+				video.POST(":videoid", api.ShowVideo)
+				video.POST("upload", api.UploadVideo)
+				video.POST("comment", api.AddComment)
 			}
 		}
 	 }

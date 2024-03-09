@@ -1,54 +1,53 @@
 package api
 
 import (
-	"mime/multipart"
-	"net/http"
-	"path/filepath"
-	"work4/models"
-	"work4/service"
-
-	"github.com/gin-gonic/gin"
-
-	// "gorm.io/gorm"
+	// "fmt"
 	"fmt"
-	"io"
-	"log"
+	"work4/models"
+	"work4/pkg/utils"
+	"work4/service"
+	"github.com/gin-gonic/gin"
+	// "work4/serializer"
 )
 
-func UploadVideo(c *gin.Context){
-    file, err := c.FormFile("file")
-    if err != nil {
-        c.JSON(400, ErrorResponse(err))
-    }
-    err, url := UploadAvatarService(file)
+func UploadVideo(c *gin.Context) {
+	var uploadVideo service.UploadVideoService
+    claim, _ := utils.ParseToken(c.GetHeader("Authorization"))
+	if err1 := c.ShouldBind(&uploadVideo);err1 == nil{
+		file := uploadVideo.Video
+		if utils.ParseVideoExt(file.Filename) {
+			c.JSON(400, nil)
+		}else{
+			filepath := "./upload/video/"+claim.UserName+"/"+file.Filename
+				if err2 := c.SaveUploadedFile(file, filepath); err2 != nil{
+					c.JSON(400, ErrorResponse(err2))
+				}else{
+					res := uploadVideo.UploadVideo(claim.ID, claim.UserName, filepath)
+					c.JSON(200, res)
+				}
+			}
+	}else{
+		c.JSON(200, err1)
+	}
+}
 
-    // 验证视频类型
-    ext := filepath.Ext(header.Filename)
-    if ext != ".mp4" && ext != ".avi" { // 添加或修改以支持更多视频格式
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Unsupported video format"})
-        return
-    }
+func VideoRank(c *gin.Context){
+	key := "videoclick"
+	ranklist := models.Redisdb.ZRevRangeWithScores(key, 0, -1)
+	count, err := models.Redisdb.ZCard(key).Result()
+	if err != nil {
+		fmt.Println(err)
+    	c.JSON(404, err)
+	}
+	res := service.RankVideoList(ranklist, int(count))
+	c.JSON(200, res)
+}
 
-    // 定义视频保存的路径
-    filePath := fmt.Sprintf("./upload/video/%s", header.Filename)
-
-    // 保存文件
-    if err := c.SaveUploadedFile(header, filePath); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save the video"})
-        log.Println("Failed to save the video:", err)
-        return
-    }
-
-    // 将视频信息保存到数据库
-    video := models.Video{
-        Title:      "Example Video Title", 
-        FilePath:   filePath,
-    }
-    if result := models.DB.Create(&video); result.Error != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save video info"})
-        return
-    }
-
-    // 上传成功
-    c.JSON(http.StatusCreated, gin.H{"message": "视频上传成功", "videoId": video.ID})
+func ShowVideo(c *gin.Context) {
+	videoid := c.Param("videoid")
+	fmt.Println()
+	fmt.Println(videoid)
+	fmt.Println()
+	res := service.ShowVideoDetail(videoid)
+	c.JSON(200, res)
 }

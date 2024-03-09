@@ -8,5 +8,5 @@ import (
 func main() {
 	conf.Init()
 	r := routers.NewRouters()
-	_=r.Run(conf.HttpPort)
+	_ = r.Run(conf.HttpPort)
 }

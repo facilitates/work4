@@ -1,9 +1,11 @@
 package service
 
 import (
+	"fmt"
 	"work4/models"
 	"work4/pkg/utils"
 	"work4/serializer"
+
 	_ "github.com/go-playground/validator/v10"
 	"github.com/jinzhu/gorm"
 )
@@ -14,7 +16,6 @@ type UserService struct {
 }
 
 func (service *UserService) Register() serializer.Response {
-	utils.CreateFolder(service.UserName)
 	var user models.User
 	var count int
 	models.DB.Model(&models.User{}).Where("user_name=?",service.UserName).
@@ -40,6 +41,7 @@ func (service *UserService) Register() serializer.Response {
 			Msg: "数据库操作错误",
 		}
 	}
+	utils.CreateFolder(service.UserName)
 	return serializer.Response{
 		Status: 200,
 		Msg: "用户注册成功了",
@@ -60,6 +62,7 @@ func (service *UserService) Login() serializer.Response {
 			Msg: "数据库错误",
 		}
 	}
+	fmt.Println(service.Password)
 	if user.CheckPassword(service.Password) == false {
 		return serializer.Response{
 			Status: 400,
@@ -81,4 +84,3 @@ func (service *UserService) Login() serializer.Response {
 		Msg : "登录成功",
 	}
 }
-
